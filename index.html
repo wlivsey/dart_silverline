@@ -202,6 +202,8 @@
             stroke: rgba(255, 255, 255, 0.3);
             stroke-width: 2px;
             animation: trainGlowEastbound 2s ease-in-out infinite;
+            -webkit-animation: trainGlowEastbound 2s ease-in-out infinite;
+            will-change: filter;
         }
 
         .train-westbound {
@@ -210,6 +212,8 @@
             stroke: rgba(255, 255, 255, 0.3);
             stroke-width: 2px;
             animation: trainGlowWestbound 2s ease-in-out infinite;
+            -webkit-animation: trainGlowWestbound 2s ease-in-out infinite;
+            will-change: filter;
         }
 
         /* Station info popup */
@@ -415,20 +419,46 @@
             50% { opacity: 0.5; }
         }
 
-        @keyframes trainGlowEastbound {
+        @-webkit-keyframes trainGlowEastbound {
             0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #0066CC);
                 filter: drop-shadow(0 0 12px #0066CC);
             }
             50% {
+                -webkit-filter: drop-shadow(0 0 20px #0066CC) drop-shadow(0 0 8px #0066CC);
                 filter: drop-shadow(0 0 20px #0066CC) drop-shadow(0 0 8px #0066CC);
+            }
+        }
+
+        @keyframes trainGlowEastbound {
+            0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #0066CC);
+                filter: drop-shadow(0 0 12px #0066CC);
+            }
+            50% {
+                -webkit-filter: drop-shadow(0 0 20px #0066CC) drop-shadow(0 0 8px #0066CC);
+                filter: drop-shadow(0 0 20px #0066CC) drop-shadow(0 0 8px #0066CC);
+            }
+        }
+
+        @-webkit-keyframes trainGlowWestbound {
+            0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #FFB81C);
+                filter: drop-shadow(0 0 12px #FFB81C);
+            }
+            50% {
+                -webkit-filter: drop-shadow(0 0 20px #FFB81C) drop-shadow(0 0 8px #FFB81C);
+                filter: drop-shadow(0 0 20px #FFB81C) drop-shadow(0 0 8px #FFB81C);
             }
         }
 
         @keyframes trainGlowWestbound {
             0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #FFB81C);
                 filter: drop-shadow(0 0 12px #FFB81C);
             }
             50% {
+                -webkit-filter: drop-shadow(0 0 20px #FFB81C) drop-shadow(0 0 8px #FFB81C);
                 filter: drop-shadow(0 0 20px #FFB81C) drop-shadow(0 0 8px #FFB81C);
             }
         }
