@@ -1,0 +1,16 @@
+[build]
+  # No build command needed - this is a static HTML site
+  command = "echo 'No build needed for static site'"
+  publish = "."
+
+[[headers]]
+  # Cache static assets
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  # Don't cache HTML to ensure updates are seen
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
