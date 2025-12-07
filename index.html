@@ -893,7 +893,8 @@
                 const tripMinutes = parseTime(timeStr);
                 const diff = getMinutesUntil(tripMinutes, currentMinutes);
 
-                if (diff >= -2 && diff < minDiff) {
+                // Only show upcoming trains or trains arriving right now
+                if (diff >= -1 && diff < minDiff) {
                     minDiff = diff;
                     nextDeparture = {
                         time: timeStr,
@@ -924,7 +925,8 @@
                     const tripMinutes = parseTime(timeStr);
                     const diff = getMinutesUntil(tripMinutes, currentMinutes);
 
-                    if (diff >= -2 && diff < minDiff) {
+                    // Only show upcoming trains (>= 0 min) or trains arriving right now (-1 min for "NOW")
+                    if (diff >= -1 && diff < minDiff) {
                         minDiff = diff;
                         nextDeparture = {
                             time: timeStr,
