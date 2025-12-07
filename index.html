@@ -1299,8 +1299,8 @@
                 // Update train positions every second for smooth movement
                 setInterval(updateTrainPositions, 1000);
 
-                // Update departure boards every 30 seconds (no need for frequent updates)
-                setInterval(updateDepartureBoards, 30000);
+                // Update departure boards every 5 seconds to keep countdown times accurate
+                setInterval(updateDepartureBoards, 5000);
             } catch (e) {
                 // Show error on screen for debugging on iPad
                 document.body.innerHTML = '<div style="color:red;padding:20px;font-size:18px;">Error: ' + e.message + '<br><br>Stack: ' + e.stack + '</div>';
