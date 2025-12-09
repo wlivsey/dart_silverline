@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cypress Waters Station - DART Silver Line</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Status Container */
+        .status-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background-color 0.5s ease;
+        }
+
+        .status-container.open {
+            background: #0066CC;
+        }
+
+        .status-container.closed {
+            background: #FFB81C;
+        }
+
+        /* Crossing Icon */
+        .crossing-icon {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+        }
+
+        /* Status Text */
+        .status-header {
+            font-size: 2.5em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .status-message {
+            font-size: 1.3em;
+            text-align: center;
+            line-height: 1.6;
+            max-width: 400px;
+            margin-bottom: 10px;
+        }
+
+        .train-details {
+            font-size: 1em;
+            text-align: center;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        /* Buttons */
+        .button-container {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .nav-button {
+            flex: 1;
+            max-width: 200px;
+            padding: 18px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            background: #111111;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .nav-button:active {
+            transform: scale(0.95);
+            background: #1a1a1a;
+        }
+
+        /* Hidden content */
+        .full-schedule {
+            display: none;
+        }
+
+        /* Pulse animation for closed status */
+        @keyframes pulse-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .status-container.closed .status-header {
+            animation: pulse-warning 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Display -->
+    <div class="status-container" id="statusContainer">
+        <!-- Crossing Icon (SVG will be inserted here) -->
+        <div class="crossing-icon" id="crossingIcon"></div>
+
+        <!-- Status Text -->
+        <div class="status-header" id="statusHeader">OPEN</div>
+        <div class="status-message" id="statusMessage">
+            Crossing will close in<br>
+            <strong id="timeUntilClose">calculating...</strong>
+        </div>
+        <div class="train-details" id="trainDetails"></div>
+    </div>
+
+    <!-- Navigation Button -->
+    <div class="button-container">
+        <a href="index.html" class="nav-button">Full Schedule & Live Map</a>
+    </div>
+
+    <script>
+        // SVG Icons
+        const ICON_OPEN = `
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Crossing sign pole -->
+                <rect x="95" y="80" width="10" height="120" fill="#333"/>
+
+                <!-- Railroad crossing sign (circle) -->
+                <circle cx="100" cy="70" r="45" fill="#FFD700" stroke="#333" stroke-width="3"/>
+
+                <!-- RR text -->
+                <text x="100" y="62" font-family="Arial Black" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">R</text>
+                <text x="100" y="85" font-family="Arial Black" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">R</text>
+
+                <!-- Crossing X -->
+                <line x1="70" y1="45" x2="130" y2="95" stroke="#000" stroke-width="4"/>
+                <line x1="130" y1="45" x2="70" y2="95" stroke="#000" stroke-width="4"/>
+
+                <!-- Barriers UP (left) -->
+                <line x1="100" y1="70" x2="30" y2="40" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="30" cy="40" r="6" fill="#ef4444"/>
+
+                <!-- Barriers UP (right) -->
+                <line x1="100" y1="70" x2="170" y2="40" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="170" cy="40" r="6" fill="#ef4444"/>
+            </svg>
+        `;
+
+        const ICON_CLOSED = `
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Crossing sign pole -->
+                <rect x="95" y="80" width="10" height="120" fill="#333"/>
+
+                <!-- Railroad crossing sign (circle) -->
+                <circle cx="100" cy="70" r="45" fill="#FFD700" stroke="#333" stroke-width="3"/>
+
+                <!-- RR text -->
+                <text x="100" y="62" font-family="Arial Black" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">R</text>
+                <text x="100" y="85" font-family="Arial Black" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">R</text>
+
+                <!-- Crossing X -->
+                <line x1="70" y1="45" x2="130" y2="95" stroke="#000" stroke-width="4"/>
+                <line x1="130" y1="45" x2="70" y2="95" stroke="#000" stroke-width="4"/>
+
+                <!-- Barriers DOWN (left) -->
+                <line x1="100" y1="70" x2="30" y2="70" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="30" cy="70" r="6" fill="#ef4444"/>
+                <circle cx="30" cy="70" r="10" fill="#ef4444" opacity="0.5">
+                    <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite"/>
+                </circle>
+
+                <!-- Barriers DOWN (right) -->
+                <line x1="100" y1="70" x2="170" y2="70" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="170" cy="70" r="6" fill="#ef4444"/>
+                <circle cx="170" cy="70" r="10" fill="#ef4444" opacity="0.5">
+                    <animate attributeName="opacity" values="0.5;1;0.5" dur="1s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
+        `;
+
+        // Configuration
+        const CLOSURE_WARNING_MINUTES = 2;
+        const CYPRESS_WATERS_IDX = 2;
+
+        // Include schedule data (embedded from main file)
+        // This will be populated with actual schedule
+
+        function getCurrentMinutes() {
+            const now = new Date();
+            return now.getHours() * 60 + now.getMinutes();
+        }
+
+        function parseTime(timeStr) {
+            const [hours, mins] = timeStr.split(':').map(Number);
+            return hours * 60 + mins;
+        }
+
+        function getMinutesUntil(targetMinutes, currentMinutes) {
+            let diff = targetMinutes - currentMinutes;
+            if (diff < -12 * 60) diff += 24 * 60;
+            return diff;
+        }
+
+        function formatDuration(minutes) {
+            if (minutes < 1) return 'less than 1 minute';
+            if (minutes === 1) return '1 minute';
+            if (minutes < 60) return `${minutes} minutes`;
+
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+
+            if (mins === 0) {
+                return hours === 1 ? '1 hour' : `${hours} hours`;
+            }
+
+            if (hours === 1) {
+                return `1 hour ${mins} minutes`;
+            }
+
+            return `${hours} hours ${mins} minutes`;
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60) % 24;
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function isWeekend() {
+            const day = new Date().getDay();
+            return day === 0 || day === 6;
+        }
+
+        // Weekend Schedule Data
+        const weekendEastbound = [
+            ["05:28", "05:34", "05:43", "05:50", "05:59", "06:01", "06:09", "06:15", "06:19", "06:22"],
+            ["06:28", "06:34", "06:43", "06:50", "06:59", "07:01", "07:09", "07:15", "07:19", "07:22"],
+            ["07:28", "07:34", "07:43", "07:50", "07:59", "08:01", "08:09", "08:15", "08:19", "08:22"],
+            ["08:28", "08:34", "08:43", "08:50", "08:59", "09:01", "09:09", "09:15", "09:19", "09:22"],
+            ["09:28", "09:34", "09:43", "09:50", "09:59", "10:01", "10:09", "10:15", "10:19", "10:22"],
+            ["10:28", "10:34", "10:43", "10:50", "10:59", "11:01", "11:09", "11:15", "11:19", "11:22"],
+            ["11:28", "11:34", "11:43", "11:50", "11:59", "12:01", "12:09", "12:15", "12:19", "12:22"],
+            ["12:28", "12:34", "12:43", "12:50", "12:59", "13:01", "13:09", "13:15", "13:19", "13:22"],
+            ["13:28", "13:34", "13:43", "13:50", "13:59", "14:01", "14:09", "14:15", "14:19", "14:22"],
+            ["14:28", "14:34", "14:43", "14:50", "14:59", "15:01", "15:09", "15:15", "15:19", "15:22"],
+            ["15:28", "15:34", "15:43", "15:50", "15:59", "16:01", "16:09", "16:15", "16:19", "16:22"],
+            ["16:28", "16:34", "16:43", "16:50", "16:59", "17:01", "17:09", "17:15", "17:19", "17:22"],
+            ["17:28", "17:34", "17:43", "17:50", "17:59", "18:01", "18:09", "18:15", "18:19", "18:22"],
+            ["18:28", "18:34", "18:43", "18:50", "18:59", "19:01", "19:09", "19:15", "19:19", "19:22"],
+            ["19:28", "19:34", "19:43", "19:50", "19:59", "20:01", "20:09", "20:15", "20:19", "20:22"],
+            ["20:28", "20:34", "20:43", "20:50", "20:59", "21:01", "21:09", "21:15", "21:19", "21:22"],
+            ["21:28", "21:34", "21:43", "21:50", "21:59", "22:01", "22:09", "22:15", "22:19", "22:22"],
+            ["22:28", "22:34", "22:43", "22:50", "22:59", "23:01", "23:09", "23:15", "23:19", "23:22"],
+            ["23:28", "23:34", "23:43", "23:50", "23:59", "00:01", "00:09", "00:15", "00:19", "00:22"],
+            ["00:28", "00:34", "00:43", "00:50", "00:59", "01:01", "01:09", "01:15", "01:19", "01:22"]
+        ];
+
+        const weekendWestbound = [
+            ["04:23", "04:27", "04:30", "04:36", "04:43", "04:46", "04:54", "05:01", "05:11", "05:18"],
+            ["05:23", "05:27", "05:30", "05:36", "05:43", "05:46", "05:54", "06:01", "06:11", "06:18"],
+            ["06:23", "06:27", "06:30", "06:36", "06:43", "06:46", "06:54", "07:01", "07:11", "07:18"],
+            ["07:23", "07:27", "07:30", "07:36", "07:43", "07:46", "07:54", "08:01", "08:11", "08:18"],
+            ["08:23", "08:27", "08:30", "08:36", "08:43", "08:46", "08:54", "09:01", "09:11", "09:18"],
+            ["09:23", "09:27", "09:30", "09:36", "09:43", "09:46", "09:54", "10:01", "10:11", "10:18"],
+            ["10:23", "10:27", "10:30", "10:36", "10:43", "10:46", "10:54", "11:01", "11:11", "11:18"],
+            ["11:23", "11:27", "11:30", "11:36", "11:43", "11:46", "11:54", "12:01", "12:11", "12:18"],
+            ["12:23", "12:27", "12:30", "12:36", "12:43", "12:46", "12:54", "13:01", "13:11", "13:18"],
+            ["13:23", "13:27", "13:30", "13:36", "13:43", "13:46", "13:54", "14:01", "14:11", "14:18"],
+            ["14:23", "14:27", "14:30", "14:36", "14:43", "14:46", "14:54", "15:01", "15:11", "15:18"],
+            ["15:23", "15:27", "15:30", "15:36", "15:43", "15:46", "15:54", "16:01", "16:11", "16:18"],
+            ["16:23", "16:27", "16:30", "16:36", "16:43", "16:46", "16:54", "17:01", "17:11", "17:18"],
+            ["17:23", "17:27", "17:30", "17:36", "17:43", "17:46", "17:54", "18:01", "18:11", "18:18"],
+            ["18:23", "18:27", "18:30", "18:36", "18:43", "18:46", "18:54", "19:01", "19:11", "19:18"],
+            ["19:23", "19:27", "19:30", "19:36", "19:43", "19:46", "19:54", "20:01", "20:11", "20:18"],
+            ["20:23", "20:27", "20:30", "20:36", "20:43", "20:46", "20:54", "21:01", "21:11", "21:18"],
+            ["21:23", "21:27", "21:30", "21:36", "21:43", "21:46", "21:54", "22:01", "22:11", "22:18"],
+            ["22:23", "22:27", "22:30", "22:36", "22:43", "22:46", "22:54", "23:01", "23:11", "23:18"],
+            ["23:23", "23:27", "23:30", "23:36", "23:43", "23:46", "23:54", "00:01", "00:11", "00:18"]
+        ];
+
+        function getSchedule() {
+            // For now, always return weekend schedule
+            // TODO: Add weekday schedule support
+            return {
+                eastbound: weekendEastbound,
+                westbound: weekendWestbound
+            };
+        }
+
+        function getCypressWatersStatus() {
+            const schedule = getSchedule();
+            const currentMinutes = getCurrentMinutes();
+            const upcomingTrains = [];
+
+            // Check eastbound trains at Cypress Waters
+            schedule.eastbound.forEach((trip, idx) => {
+                const trainTime = parseTime(trip[CYPRESS_WATERS_IDX]);
+                const diff = getMinutesUntil(trainTime, currentMinutes);
+
+                if (diff >= -1 && diff <= 30) {
+                    upcomingTrains.push({
+                        direction: 'Eastbound',
+                        time: trainTime,
+                        timeStr: trip[CYPRESS_WATERS_IDX],
+                        minutesUntil: diff,
+                        closeTime: trainTime - CLOSURE_WARNING_MINUTES
+                    });
+                }
+            });
+
+            // Check westbound trains at Cypress Waters
+            schedule.westbound.forEach((trip, idx) => {
+                const trainTime = parseTime(trip[7]); // Westbound Cypress Waters index
+                const diff = getMinutesUntil(trainTime, currentMinutes);
+
+                if (diff >= -1 && diff <= 30) {
+                    upcomingTrains.push({
+                        direction: 'Westbound',
+                        time: trainTime,
+                        timeStr: trip[7],
+                        minutesUntil: diff,
+                        closeTime: trainTime - CLOSURE_WARNING_MINUTES
+                    });
+                }
+            });
+
+            // Sort by time
+            upcomingTrains.sort((a, b) => a.minutesUntil - b.minutesUntil);
+
+            return calculateClosureStatus(upcomingTrains, currentMinutes);
+        }
+
+        function calculateClosureStatus(trains, currentMinutes) {
+            if (trains.length === 0) {
+                return {
+                    status: 'open',
+                    message: 'No trains scheduled in the next 30 minutes'
+                };
+            }
+
+            // Check if currently closed (within 2 min before any train)
+            const currentlyClosed = trains.some(train => {
+                const minsUntilTrain = train.minutesUntil;
+                return minsUntilTrain >= -1 && minsUntilTrain <= CLOSURE_WARNING_MINUTES;
+            });
+
+            if (currentlyClosed) {
+                // Find all trains in closure window
+                const activeTrains = trains.filter(train =>
+                    train.minutesUntil >= -1 && train.minutesUntil <= CLOSURE_WARNING_MINUTES
+                );
+
+                const lastTrain = activeTrains[activeTrains.length - 1];
+                const closureDuration = CLOSURE_WARNING_MINUTES;
+
+                return {
+                    status: 'closed',
+                    message: `Crossing is closed`,
+                    duration: closureDuration,
+                    trains: activeTrains,
+                    reopenTime: lastTrain.time
+                };
+            }
+
+            // Find next closure
+            const nextTrain = trains[0];
+            const minutesUntilClose = nextTrain.minutesUntil - CLOSURE_WARNING_MINUTES;
+
+            // Find all trains that will be in same closure window
+            const nextClosureTrains = trains.filter(train => {
+                return Math.abs(train.time - nextTrain.time) <= CLOSURE_WARNING_MINUTES;
+            });
+
+            return {
+                status: 'open',
+                message: `Crossing will close in`,
+                timeUntil: minutesUntilClose,
+                duration: CLOSURE_WARNING_MINUTES,
+                trains: nextClosureTrains,
+                closeTime: nextTrain.closeTime
+            };
+        }
+
+        function updateStatus() {
+            const status = getCypressWatersStatus();
+            const container = document.getElementById('statusContainer');
+            const icon = document.getElementById('crossingIcon');
+            const header = document.getElementById('statusHeader');
+            const message = document.getElementById('statusMessage');
+            const details = document.getElementById('trainDetails');
+
+            if (status.status === 'open') {
+                container.className = 'status-container open';
+                icon.innerHTML = ICON_OPEN;
+                header.textContent = 'OPEN';
+
+                if (status.message === 'No trains scheduled in the next 30 minutes') {
+                    message.innerHTML = status.message;
+                    details.textContent = '';
+                } else {
+                    const trainCount = status.trains.length;
+                    const trainWord = trainCount === 1 ? 'train' : 'trains';
+
+                    message.innerHTML = `${status.message}<br><strong>${formatDuration(status.timeUntil)}</strong> for ${status.duration} minutes`;
+
+                    const trainTimes = status.trains.map(t => `${formatTime(t.time)} ${t.direction}`).join(', ');
+                    details.textContent = `(${trainTimes})`;
+                }
+            } else {
+                container.className = 'status-container closed';
+                icon.innerHTML = ICON_CLOSED;
+                header.textContent = 'CLOSED';
+
+                const trainCount = status.trains.length;
+                const trainWord = trainCount === 1 ? 'train' : 'trains';
+
+                message.innerHTML = `${status.message}<br>for <strong>${trainCount} ${trainWord}</strong>`;
+
+                const trainTimes = status.trains.map(t => `${formatTime(t.time)} ${t.direction}`).join(', ');
+                details.textContent = `(${trainTimes})`;
+            }
+        }
+
+        // Initialize
+        updateStatus();
+        setInterval(updateStatus, 5000); // Update every 5 seconds
+    </script>
+</body>
+</html>
