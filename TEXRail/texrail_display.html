@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trinity Metro TEXRail - Live Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: #111111;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #1a1a1a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dart-logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .dart-logo img {
+            height: 100%;
+            width: auto;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .current-time {
+            font-size: 2.5em;
+            font-weight: 300;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        .current-date {
+            font-size: 0.95em;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .schedule-type {
+            font-size: 0.8em;
+            color: #3b82f6;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Map section */
+        .map-section {
+            background: #111111;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #1a1a1a;
+        }
+
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .map-header h2 {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #9ca3af;
+        }
+
+        .map-legend {
+            display: flex;
+            gap: 24px;
+            font-size: 1em;
+            color: #e5e7eb;
+            font-weight: 500;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(17, 17, 17, 0.6);
+            border-radius: 6px;
+        }
+
+        .legend-item.direction {
+            font-size: 1.1em;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.eastbound {
+            background: #1a3668;
+            box-shadow: 0 0 12px #1a3668;
+        }
+
+        .legend-dot.westbound {
+            background: #c8102e;
+            box-shadow: 0 0 12px #c8102e;
+        }
+
+        .legend-dot.station {
+            background: #6b7280;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: #0a0a0a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .map-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Station styles */
+        .station-dot {
+            fill: #4b5563;
+            stroke: #6b7280;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .station-dot:hover {
+            fill: #3b82f6;
+            stroke: #60a5fa;
+        }
+
+        .station-label {
+            fill: #9ca3af;
+            font-size: 11px;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        .track-line {
+            stroke: #374151;
+            stroke-width: 4;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .track-line-glow {
+            stroke: #1f2937;
+            stroke-width: 8;
+            fill: none;
+            stroke-linecap: round;
+            opacity: 0.5;
+        }
+
+        /* Train markers */
+        .train-marker {
+            transition: all 0.5s ease-out;
+        }
+
+        .train-eastbound {
+            fill: #1a3668;
+            filter: drop-shadow(0 0 12px #1a3668);
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 2px;
+            animation: trainGlowEastbound 2s ease-in-out infinite;
+            -webkit-animation: trainGlowEastbound 2s ease-in-out infinite;
+            will-change: filter;
+        }
+
+        .train-westbound {
+            fill: #c8102e;
+            filter: drop-shadow(0 0 12px #c8102e);
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 2px;
+            animation: trainGlowWestbound 2s ease-in-out infinite;
+            -webkit-animation: trainGlowWestbound 2s ease-in-out infinite;
+            will-change: filter;
+        }
+
+        /* Station info popup */
+        .station-popup {
+            position: absolute;
+            background: rgba(17, 17, 17, 0.98);
+            border: 1px solid #262626;
+            border-radius: 8px;
+            padding: 12px;
+            min-width: 180px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        .station-popup.active {
+            display: block;
+        }
+
+        .station-popup h3 {
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .station-popup p {
+            font-size: 0.8em;
+            margin: 4px 0;
+            color: #9ca3af;
+        }
+
+        /* Next Trains */
+        .next-trains {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .next-train-card {
+            background: #111111;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #1a1a1a;
+            text-align: center;
+        }
+
+        .next-train-card.eastbound-card {
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.1), transparent);
+            border-left: 4px solid #1a3668;
+        }
+
+        .next-train-card.westbound-card {
+            background: linear-gradient(135deg, rgba(255, 184, 28, 0.1), transparent);
+            border-left: 4px solid #c8102e;
+        }
+
+        .next-train-card h3 {
+            font-size: 0.9em;
+            color: #9ca3af;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .next-train-card .value {
+            font-size: 3em;
+            font-weight: 600;
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            margin-bottom: 8px;
+        }
+
+        .next-train-card .value.eastbound {
+            color: #1a3668;
+        }
+
+        .next-train-card .value.westbound {
+            color: #c8102e;
+        }
+
+        .next-train-card .label {
+            font-size: 0.85em;
+            color: #6b7280;
+        }
+
+        /* Main content grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Departure boards */
+        .departure-board {
+            background: #111111;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #1a1a1a;
+        }
+
+        .board-header {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .board-header.eastbound {
+            background: linear-gradient(90deg, rgba(0, 102, 204, 0.15), transparent);
+            border-left: 3px solid #1a3668;
+        }
+
+        .board-header.westbound {
+            background: linear-gradient(90deg, rgba(255, 184, 28, 0.15), transparent);
+            border-left: 3px solid #c8102e;
+        }
+
+        .direction-icon {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+
+        .board-title {
+            flex: 1;
+        }
+
+        .board-title h2 {
+            font-size: 1em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .board-title p {
+            font-size: 0.75em;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .board-content {
+            padding: 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .departure-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 90px;
+            padding: 12px 20px;
+            border-bottom: 1px solid #1a1a1a;
+            transition: background 0.2s ease;
+        }
+
+        .departure-row:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .departure-row.next-train {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .departure-row:last-child {
+            border-bottom: none;
+        }
+
+        .station-name {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #e5e7eb;
+        }
+
+        .departure-time {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+        }
+
+        .time-until {
+            text-align: right;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .time-until.arriving {
+            color: #0ea5e9;
+            animation: pulse 1s infinite;
+        }
+
+        .time-until.soon {
+            color: #c8102e;
+        }
+
+        .time-until.normal {
+            color: #6b7280;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @-webkit-keyframes trainGlowEastbound {
+            0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #1a3668);
+                filter: drop-shadow(0 0 12px #1a3668);
+            }
+            50% {
+                -webkit-filter: drop-shadow(0 0 20px #1a3668) drop-shadow(0 0 8px #1a3668);
+                filter: drop-shadow(0 0 20px #1a3668) drop-shadow(0 0 8px #1a3668);
+            }
+        }
+
+        @keyframes trainGlowEastbound {
+            0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #1a3668);
+                filter: drop-shadow(0 0 12px #1a3668);
+            }
+            50% {
+                -webkit-filter: drop-shadow(0 0 20px #1a3668) drop-shadow(0 0 8px #1a3668);
+                filter: drop-shadow(0 0 20px #1a3668) drop-shadow(0 0 8px #1a3668);
+            }
+        }
+
+        @-webkit-keyframes trainGlowWestbound {
+            0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #c8102e);
+                filter: drop-shadow(0 0 12px #c8102e);
+            }
+            50% {
+                -webkit-filter: drop-shadow(0 0 20px #c8102e) drop-shadow(0 0 8px #c8102e);
+                filter: drop-shadow(0 0 20px #c8102e) drop-shadow(0 0 8px #c8102e);
+            }
+        }
+
+        @keyframes trainGlowWestbound {
+            0%, 100% {
+                -webkit-filter: drop-shadow(0 0 12px #c8102e);
+                filter: drop-shadow(0 0 12px #c8102e);
+            }
+            50% {
+                -webkit-filter: drop-shadow(0 0 20px #c8102e) drop-shadow(0 0 8px #c8102e);
+                filter: drop-shadow(0 0 20px #c8102e) drop-shadow(0 0 8px #c8102e);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .next-trains {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-right {
+                text-align: center;
+            }
+
+            .current-time {
+                font-size: 2em;
+            }
+
+            .departure-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .departure-time, .time-until {
+                text-align: left;
+            }
+
+            .next-trains {
+                grid-template-columns: 1fr;
+            }
+
+            .map-legend {
+                display: none;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="dart-logo">
+                    <img src="data:image/png;base64,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v4yp9V5YBzvtu583E/ottiCJh/uMIbgrvMFyva1QW64r2JN4oItbrobCWY84iP49soeOeFyA/4a8I0Pfi+hqgPzJAraGvh99qyeOf2efuNv77/WPBCTezv0Geh2Tigh9PXPHM/WvAnjV5/PN8Cf2+yYs/bYh8i0FTgdg+1pfCjQK8DoEr5sW/spF/cKWWCEiIiIiIiLqnKLbbjtBTfcEqI4WYIyKjBHoKAD9AfQGcAy+eLd5O4C9OPjo6ScCbFDoBoGxQYENlmW8WVI4fRsjywQAERERERERRRmfzxd/ICGhz3tjx+7iKv1ERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERPQFkpyaeQXDQJFExbW9uX7FM/bv2Wckp9ZfxghT2E+sbYlVGzc+dCCUfYweN+lrpuE6zRHxEphNQzc/jNWrA2w9FCmSUrPPF8FQRsKmazvQLoq9B6/z2CUC89P/zYD14f74uNZta5fvZaSIKFYlp04ZrRKYAMUxamCPmNgRZ7rXv/fe8u3deRxuFbmf1UGRNUgw/wHA9gRAenqte7fpZnunsDP6tj0LIKQEAOKNrQhoGYBjY77PK5C0bVj/FmCR09tOK9J+C+AEB00K/zkEdUWReGwiOgfA6Tyj2RTP//2fjv+n//snLAgS2gPweLP3KbBDRLdC0aqQjaLWeguy3lBZ37ze3wTUmIwmEUWPDFeyN+46QG9UBMZ9ehIUBWAAfiNgebxZbwJ4uJ8rsLS2tqb9y3vwpGYtguDMz51PS5vqqx/vzLePnpA11Azgmc/OwICblUJEFHnef6d6W1JqZoGI3O2IyYHKLcenTK75oHHFJqfW+TZ4L1TgOgcV2TJgFLK302e0twAeKDwHB7kKiMA4eJKAx+tuB7IaAbwpkH9AzNebhm5by7uHiMIrKS37j6I6uhMX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" alt="DART Silver Line">
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="current-time" id="currentTime">00:00:00</div>
+                <div class="current-date" id="currentDate">Loading...</div>
+                <div class="schedule-type" id="scheduleType">Loading schedule...</div>
+            </div>
+        </header>
+
+        <!-- Next Trains -->
+        <div class="next-trains">
+            <div class="next-train-card eastbound-card">
+                <h3>Next Eastbound</h3>
+                <div class="value eastbound" id="nextEastTime">--:--</div>
+                <div class="label" id="nextEastStation">from Grapevine</div>
+            </div>
+            <div class="next-train-card westbound-card">
+                <h3>Next Westbound</h3>
+                <div class="value westbound" id="nextWestTime">--:--</div>
+                <div class="label" id="nextWestStation">from Grapevine</div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <div class="map-header">
+                <h2>Live Train Positions</h2>
+                <div class="map-legend">
+                    <div class="legend-item direction">
+                        <div class="legend-dot eastbound"></div>
+                        <span>Eastbound → DFW Airport</span>
+                    </div>
+                    <div class="legend-item direction">
+                        <div class="legend-dot westbound"></div>
+                        <span>← Westbound to Fort Worth</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot station"></div>
+                        <span>Station</span>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container">
+                <svg class="map-svg" viewBox="0 0 1200 160" preserveAspectRatio="xMidYMid meet">
+                    <!-- Track glow -->
+                    <line class="track-line-glow" x1="60" y1="80" x2="1140" y2="80"/>
+
+                    <!-- Track line -->
+                    <line class="track-line" x1="60" y1="80" x2="1140" y2="80"/>
+
+                    <!-- Stations (linear layout, 9 stations evenly spaced) -->
+                    <g id="stations">
+                        <!-- Fort Worth T&P -->
+                        <circle class="station-dot" cx="60" cy="80" r="10" data-station="0"/>
+                        <text class="station-label" x="60" y="110" text-anchor="middle">FW T&P</text>
+
+                        <!-- Fort Worth Central -->
+                        <circle class="station-dot" cx="195" cy="80" r="10" data-station="1"/>
+                        <text class="station-label" x="195" y="110" text-anchor="middle">FW Central</text>
+
+                        <!-- North Side -->
+                        <circle class="station-dot" cx="330" cy="80" r="10" data-station="2"/>
+                        <text class="station-label" x="330" y="110" text-anchor="middle">North Side</text>
+
+                        <!-- Mercantile Center -->
+                        <circle class="station-dot" cx="465" cy="80" r="10" data-station="3"/>
+                        <text class="station-label" x="465" y="110" text-anchor="middle">Mercantile</text>
+
+                        <!-- NRH/Iron Horse -->
+                        <circle class="station-dot" cx="600" cy="80" r="10" data-station="4"/>
+                        <text class="station-label" x="600" y="110" text-anchor="middle">Iron Horse</text>
+
+                        <!-- NRH/Smithfield -->
+                        <circle class="station-dot" cx="735" cy="80" r="10" data-station="5"/>
+                        <text class="station-label" x="735" y="110" text-anchor="middle">Smithfield</text>
+
+                        <!-- Grapevine/Main St -->
+                        <circle class="station-dot" cx="870" cy="80" r="10" data-station="6"/>
+                        <text class="station-label" x="870" y="110" text-anchor="middle">Grapevine</text>
+
+                        <!-- DFW Airport North -->
+                        <circle class="station-dot" cx="1005" cy="80" r="10" data-station="7"/>
+                        <text class="station-label" x="1005" y="110" text-anchor="middle">DFW North</text>
+
+                        <!-- DFW Terminal B -->
+                        <circle class="station-dot" cx="1140" cy="80" r="10" data-station="8"/>
+                        <text class="station-label" x="1140" y="110" text-anchor="middle">DFW Term B</text>
+                    </g>
+
+                    <!-- Direction labels -->
+                    <text x="60" y="45" text-anchor="middle" fill="#c8102e" font-size="11" font-weight="600">← Fort Worth</text>
+                    <text x="1140" y="45" text-anchor="middle" fill="#1a3668" font-size="11" font-weight="600">DFW Airport →</text>
+
+                    <!-- Train markers container -->
+                    <g id="trains">
+                        <!-- Trains will be added dynamically -->
+                    </g>
+                </svg>
+
+                <!-- Station popup -->
+                <div class="station-popup" id="stationPopup">
+                    <h3 id="popupStationName">Station Name</h3>
+                    <p id="popupNextEast">Next Eastbound: --:--</p>
+                    <p id="popupNextWest">Next Westbound: --:--</p>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Eastbound departures -->
+            <div class="departure-board">
+                <div class="board-header eastbound">
+                    <div class="direction-icon">→</div>
+                    <div class="board-title">
+                        <h2>Eastbound to DFW Airport</h2>
+                        <p>Next departures from each station</p>
+                    </div>
+                </div>
+                <div class="board-content" id="eastboundBoard">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Westbound departures -->
+            <div class="departure-board">
+                <div class="board-header westbound">
+                    <div class="direction-icon">←</div>
+                    <div class="board-title">
+                        <h2>Westbound to Fort Worth</h2>
+                        <p>Next departures from each station</p>
+                    </div>
+                </div>
+                <div class="board-content" id="westboundBoard">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Station data with coordinates for interpolation
+        const stations = [
+            { name: "Fort Worth T&P", short: "FW T&P", x: 60, y: 80 },
+            { name: "Fort Worth Central", short: "FW Central", x: 195, y: 80 },
+            { name: "North Side", short: "North Side", x: 330, y: 80 },
+            { name: "Mercantile Center", short: "Mercantile", x: 465, y: 80 },
+            { name: "NRH/Iron Horse", short: "Iron Horse", x: 600, y: 80 },
+            { name: "NRH/Smithfield", short: "Smithfield", x: 735, y: 80 },
+            { name: "Grapevine/Main St", short: "Grapevine", x: 870, y: 80 },
+            { name: "DFW Airport North", short: "DFW North", x: 1005, y: 80 },
+            { name: "DFW Terminal B", short: "DFW Term B", x: 1140, y: 80 }
+        ];
+
+        // Grapevine/Main Street station index
+        const GRAPEVINE_MAIN_ST_IDX = 6;
+
+        // TEXRail Schedule data - Same schedule runs daily (7 days a week)
+        // Eastbound: Fort Worth T&P -> DFW Airport Terminal B
+        // Stations: FW T&P, FW Central, North Side, Mercantile, Iron Horse, Smithfield, Grapevine, DFW North, DFW Term B
+        const dailyEastbound = [
+            ["04:13", "04:17", "04:25", "04:31", "04:37", "04:42", "04:56", "05:00", "05:06"],
+            ["04:43", "04:47", "04:55", "05:01", "05:07", "05:12", "05:26", "05:30", "05:36"],
+            ["05:13", "05:17", "05:25", "05:31", "05:37", "05:42", "05:56", "06:00", "06:06"],
+            ["05:43", "05:47", "05:55", "06:01", "06:07", "06:12", "06:26", "06:30", "06:36"],
+            ["06:13", "06:17", "06:25", "06:31", "06:37", "06:42", "06:56", "07:00", "07:06"],
+            ["06:43", "06:47", "06:55", "07:01", "07:07", "07:12", "07:26", "07:30", "07:36"],
+            ["07:13", "07:17", "07:25", "07:31", "07:37", "07:42", "07:56", "08:00", "08:06"],
+            ["07:43", "07:47", "07:55", "08:01", "08:07", "08:12", "08:26", "08:30", "08:36"],
+            ["08:13", "08:17", "08:25", "08:31", "08:37", "08:42", "08:56", "09:00", "09:06"],
+            ["08:43", "08:47", "08:55", "09:01", "09:07", "09:12", "09:26", "09:30", "09:36"],
+            ["09:13", "09:17", "09:25", "09:31", "09:37", "09:42", "09:56", "10:00", "10:06"],
+            ["09:43", "09:47", "09:55", "10:01", "10:07", "10:12", "10:26", "10:30", "10:36"],
+            ["10:13", "10:17", "10:25", "10:31", "10:37", "10:42", "10:56", "11:00", "11:06"],
+            ["10:43", "10:47", "10:55", "11:01", "11:07", "11:12", "11:26", "11:30", "11:36"],
+            ["11:13", "11:17", "11:25", "11:31", "11:37", "11:42", "11:56", "12:00", "12:06"],
+            ["11:43", "11:47", "11:55", "12:01", "12:07", "12:12", "12:26", "12:30", "12:36"],
+            ["12:13", "12:17", "12:25", "12:31", "12:37", "12:42", "12:56", "13:00", "13:06"],
+            ["12:43", "12:47", "12:55", "13:01", "13:07", "13:12", "13:26", "13:30", "13:36"],
+            ["13:13", "13:17", "13:25", "13:31", "13:37", "13:42", "13:56", "14:00", "14:06"],
+            ["13:43", "13:47", "13:55", "14:01", "14:07", "14:12", "14:26", "14:30", "14:36"],
+            ["14:13", "14:17", "14:25", "14:31", "14:37", "14:42", "14:56", "15:00", "15:06"],
+            ["14:43", "14:47", "14:55", "15:01", "15:07", "15:12", "15:26", "15:30", "15:36"],
+            ["15:13", "15:17", "15:25", "15:31", "15:37", "15:42", "15:56", "16:00", "16:06"],
+            ["15:43", "15:47", "15:55", "16:01", "16:07", "16:12", "16:26", "16:30", "16:36"],
+            ["16:13", "16:17", "16:25", "16:31", "16:37", "16:42", "16:56", "17:00", "17:06"],
+            ["16:43", "16:47", "16:55", "17:01", "17:07", "17:12", "17:26", "17:30", "17:36"],
+            ["17:13", "17:17", "17:25", "17:31", "17:37", "17:42", "17:56", "18:00", "18:06"],
+            ["17:43", "17:47", "17:55", "18:01", "18:07", "18:12", "18:26", "18:30", "18:36"],
+            ["18:13", "18:17", "18:25", "18:31", "18:37", "18:42", "18:56", "19:00", "19:06"],
+            ["18:43", "18:47", "18:55", "19:01", "19:07", "19:12", "19:26", "19:30", "19:36"],
+            ["19:43", "19:47", "19:55", "20:01", "20:07", "20:12", "20:26", "20:30", "20:36"],
+            ["20:43", "20:47", "20:55", "21:01", "21:07", "21:12", "21:26", "21:30", "21:36"],
+            ["21:43", "21:47", "21:55", "22:01", "22:07", "22:12", "22:26", "22:30", "22:36"],
+            ["22:43", "22:47", "22:55", "23:01", "23:07", "23:12", "23:26", "23:30", "23:36"]
+        ];
+
+        // Westbound: DFW Airport Terminal B -> Fort Worth T&P
+        // Stations: DFW Term B, DFW North, Grapevine, Smithfield, Iron Horse, Mercantile, North Side, FW Central, FW T&P
+        const dailyWestbound = [
+            ["04:00", "04:05", "04:30", "04:36", "04:42", "04:56", "05:03", "05:10", "05:16"],
+            ["04:30", "04:35", "05:00", "05:06", "05:12", "05:26", "05:33", "05:40", "05:46"],
+            ["05:00", "05:05", "05:30", "05:36", "05:42", "05:56", "06:03", "06:10", "06:16"],
+            ["05:30", "05:35", "06:00", "06:06", "06:12", "06:26", "06:33", "06:40", "06:46"],
+            ["06:00", "06:05", "06:30", "06:36", "06:42", "06:56", "07:03", "07:10", "07:16"],
+            ["06:30", "06:35", "07:00", "07:06", "07:12", "07:26", "07:33", "07:40", "07:46"],
+            ["07:00", "07:05", "07:30", "07:36", "07:42", "07:56", "08:03", "08:10", "08:16"],
+            ["07:30", "07:35", "08:00", "08:06", "08:12", "08:26", "08:33", "08:40", "08:46"],
+            ["08:00", "08:05", "08:30", "08:36", "08:42", "08:56", "09:03", "09:10", "09:16"],
+            ["08:30", "08:35", "09:00", "09:06", "09:12", "09:26", "09:33", "09:40", "09:46"],
+            ["09:00", "09:05", "09:30", "09:36", "09:42", "09:56", "10:03", "10:10", "10:16"],
+            ["09:30", "09:35", "10:00", "10:06", "10:12", "10:26", "10:33", "10:40", "10:46"],
+            ["10:00", "10:05", "10:30", "10:36", "10:42", "10:56", "11:03", "11:10", "11:16"],
+            ["10:30", "10:35", "11:00", "11:06", "11:12", "11:26", "11:33", "11:40", "11:46"],
+            ["11:00", "11:05", "11:30", "11:36", "11:42", "11:56", "12:03", "12:10", "12:16"],
+            ["11:30", "11:35", "12:00", "12:06", "12:12", "12:26", "12:33", "12:40", "12:46"],
+            ["12:00", "12:05", "12:30", "12:36", "12:42", "12:56", "13:03", "13:10", "13:16"],
+            ["12:30", "12:35", "13:00", "13:06", "13:12", "13:26", "13:33", "13:40", "13:46"],
+            ["13:00", "13:05", "13:30", "13:36", "13:42", "13:56", "14:03", "14:10", "14:16"],
+            ["13:30", "13:35", "14:00", "14:06", "14:12", "14:26", "14:33", "14:40", "14:46"],
+            ["14:00", "14:05", "14:30", "14:36", "14:42", "14:56", "15:03", "15:10", "15:16"],
+            ["14:30", "14:35", "15:00", "15:06", "15:12", "15:26", "15:33", "15:40", "15:46"],
+            ["15:00", "15:05", "15:30", "15:36", "15:42", "15:56", "16:03", "16:10", "16:16"],
+            ["15:30", "15:35", "16:00", "16:06", "16:12", "16:26", "16:33", "16:40", "16:46"],
+            ["16:00", "16:05", "16:30", "16:36", "16:42", "16:56", "17:03", "17:10", "17:16"],
+            ["16:30", "16:35", "17:00", "17:06", "17:12", "17:26", "17:33", "17:40", "17:46"],
+            ["17:00", "17:05", "17:30", "17:36", "17:42", "17:56", "18:03", "18:10", "18:16"],
+            ["17:30", "17:35", "18:00", "18:06", "18:12", "18:26", "18:33", "18:40", "18:46"],
+            ["18:00", "18:05", "18:30", "18:36", "18:42", "18:56", "19:03", "19:10", "19:16"],
+            ["18:30", "18:35", "19:00", "19:06", "19:12", "19:26", "19:33", "19:40", "19:46"],
+            ["19:00", "19:05", "19:30", "19:36", "19:42", "19:56", "20:03", "20:10", "20:16"],
+            ["19:30", "19:35", "20:00", "20:06", "20:12", "20:26", "20:33", "20:40", "20:46"],
+            ["20:30", "20:35", "21:00", "21:06", "21:12", "21:26", "21:33", "21:40", "21:46"],
+            ["21:30", "21:35", "22:00", "22:06", "22:12", "22:26", "22:33", "22:40", "22:46"],
+            ["22:30", "22:35", "23:00", "23:06", "23:12", "23:26", "23:33", "23:40", "23:46"],
+            ["23:30", "23:35", "00:00", "00:06", "00:12", "00:26", "00:33", "00:40", "00:46"]
+        ];
+
+        // TEXRail uses same schedule every day
+        const weekdayEastbound = dailyEastbound;
+        const weekdayWestbound = dailyWestbound;
+        const weekendEastbound = dailyEastbound;
+        const weekendWestbound = dailyWestbound;
+        function isWeekend() {
+            const day = new Date().getDay();
+            return day === 0 || day === 6;
+        }
+
+        function getSchedule() {
+            if (isWeekend()) {
+                return { eastbound: weekendEastbound, westbound: weekendWestbound };
+            }
+            return { eastbound: weekdayEastbound, westbound: weekdayWestbound };
+        }
+
+        function parseTime(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function getCurrentMinutes() {
+            const now = new Date();
+            return now.getHours() * 60 + now.getMinutes();
+        }
+
+        // Get current time in seconds for smooth train interpolation
+        function getCurrentSeconds() {
+            const now = new Date();
+            return now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        }
+
+        // Parse time string to seconds
+        function parseTimeToSeconds(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 3600 + minutes * 60;
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60) % 24;
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function formatTimeShort(minutes) {
+            const hours = Math.floor(minutes / 60) % 24;
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function getMinutesUntil(targetMinutes, currentMinutes) {
+            let diff = targetMinutes - currentMinutes;
+            if (diff < -60) { // Handle next day
+                diff += 24 * 60;
+            }
+            return diff;
+        }
+
+        function formatTimeUntil(minutes) {
+            if (minutes <= 0) return "NOW";
+            if (minutes < 60) return `${minutes} min`;
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m`;
+        }
+
+        // Get next departure from Grapevine for a given direction
+        function getNextGrapevineDeparture(schedule, direction) {
+            const currentMinutes = getCurrentMinutes();
+            let nextDeparture = null;
+            let minDiff = Infinity;
+
+            // For eastbound, Grapevine is index 6
+            // For westbound schedule, Grapevine is index 2 (since schedule goes DFW Term B->FW T&P)
+            const scheduleIdx = direction === 'eastbound' ? GRAPEVINE_MAIN_ST_IDX : 2;
+
+            for (const trip of schedule) {
+                const timeStr = trip[scheduleIdx];
+                const tripMinutes = parseTime(timeStr);
+                const diff = getMinutesUntil(tripMinutes, currentMinutes);
+
+                // Only show upcoming trains or trains arriving right now
+                if (diff >= -1 && diff < minDiff) {
+                    minDiff = diff;
+                    nextDeparture = {
+                        time: timeStr,
+                        minutes: tripMinutes,
+                        until: diff
+                    };
+                }
+            }
+
+            return nextDeparture;
+        }
+
+        // Get next departures for each station
+        function getNextDepartures(schedule, direction) {
+            const currentMinutes = getCurrentMinutes();
+            const departures = [];
+
+            const stationOrder = direction === 'eastbound'
+                ? [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                : [8, 7, 6, 5, 4, 3, 2, 1, 0];
+
+            stationOrder.forEach((displayIdx, scheduleIdx) => {
+                let nextDeparture = null;
+                let minDiff = Infinity;
+
+                for (const trip of schedule) {
+                    const timeStr = trip[scheduleIdx];
+                    const tripMinutes = parseTime(timeStr);
+                    const diff = getMinutesUntil(tripMinutes, currentMinutes);
+
+                    // Only show upcoming trains (>= 0 min) or trains arriving right now (-1 min for "NOW")
+                    if (diff >= -1 && diff < minDiff) {
+                        minDiff = diff;
+                        nextDeparture = {
+                            time: timeStr,
+                            minutes: tripMinutes,
+                            until: diff
+                        };
+                    }
+                }
+
+                departures.push({
+                    station: stations[displayIdx],
+                    stationIndex: displayIdx,
+                    departure: nextDeparture
+                });
+            });
+
+            return departures;
+        }
+
+        // Get active trains based on schedule (using seconds for smooth interpolation)
+        function getActiveTrains() {
+            const schedule = getSchedule();
+            const currentSeconds = getCurrentSeconds();
+            const currentMinutes = Math.floor(currentSeconds / 60);
+            const trains = [];
+
+            // Check eastbound trains
+            schedule.eastbound.forEach((trip, tripIndex) => {
+                const startMinutes = parseTime(trip[0]);
+                const endMinutes = parseTime(trip[9]);
+
+                let adjustedEnd = endMinutes;
+                if (endMinutes < startMinutes) adjustedEnd += 24 * 60;
+
+                let adjustedCurrent = currentMinutes;
+                if (currentMinutes < startMinutes - 60) adjustedCurrent += 24 * 60;
+
+                if (adjustedCurrent >= startMinutes && adjustedCurrent <= adjustedEnd) {
+                    const position = interpolatePosition(trip, currentSeconds, 'eastbound');
+                    if (position) {
+                        trains.push({
+                            id: `east-${tripIndex}`,
+                            direction: 'eastbound',
+                            ...position
+                        });
+                    }
+                }
+            });
+
+            // Check westbound trains
+            schedule.westbound.forEach((trip, tripIndex) => {
+                const startMinutes = parseTime(trip[0]);
+                const endMinutes = parseTime(trip[9]);
+
+                let adjustedEnd = endMinutes;
+                if (endMinutes < startMinutes) adjustedEnd += 24 * 60;
+
+                let adjustedCurrent = currentMinutes;
+                if (currentMinutes < startMinutes - 60) adjustedCurrent += 24 * 60;
+
+                if (adjustedCurrent >= startMinutes && adjustedCurrent <= adjustedEnd) {
+                    const position = interpolatePosition(trip, currentSeconds, 'westbound');
+                    if (position) {
+                        trains.push({
+                            id: `west-${tripIndex}`,
+                            direction: 'westbound',
+                            ...position
+                        });
+                    }
+                }
+            });
+
+            return trains;
+        }
+
+        // Interpolate train position between stations (using seconds for smooth movement)
+        function interpolatePosition(trip, currentSeconds, direction) {
+            const stationIndices = direction === 'eastbound'
+                ? [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                : [8, 7, 6, 5, 4, 3, 2, 1, 0];
+
+            for (let i = 0; i < trip.length - 1; i++) {
+                const currentStopSeconds = parseTimeToSeconds(trip[i]);
+                const nextStopSeconds = parseTimeToSeconds(trip[i + 1]);
+
+                let adjCurrent = currentSeconds;
+                let adjCurrentStop = currentStopSeconds;
+                let adjNextStop = nextStopSeconds;
+
+                // Handle overnight trips
+                if (nextStopSeconds < currentStopSeconds) {
+                    adjNextStop += 24 * 3600;
+                    if (currentSeconds < currentStopSeconds) adjCurrent += 24 * 3600;
+                }
+
+                if (adjCurrent >= adjCurrentStop && adjCurrent <= adjNextStop) {
+                    const progress = (adjCurrent - adjCurrentStop) / (adjNextStop - adjCurrentStop);
+
+                    const fromStation = stations[stationIndices[i]];
+                    const toStation = stations[stationIndices[i + 1]];
+
+                    return {
+                        x: fromStation.x + (toStation.x - fromStation.x) * progress,
+                        y: fromStation.y + (toStation.y - fromStation.y) * progress,
+                        fromStation: stationIndices[i],
+                        toStation: stationIndices[i + 1],
+                        progress: progress
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        // Update the departure boards
+        function updateDepartureBoards() {
+            const schedule = getSchedule();
+
+            // Update eastbound board
+            const eastDepartures = getNextDepartures(schedule.eastbound, 'eastbound');
+            const eastBoard = document.getElementById('eastboundBoard');
+            eastBoard.innerHTML = eastDepartures.map((dep, idx) => {
+                const timeClass = dep.departure
+                    ? (dep.departure.until <= 2 ? 'arriving' : (dep.departure.until <= 10 ? 'soon' : 'normal'))
+                    : 'normal';
+                const isNext = idx === 0 && dep.departure;
+
+                return `
+                    <div class="departure-row ${isNext ? 'next-train' : ''}">
+                        <div class="station-name">${dep.station.name}</div>
+                        <div class="departure-time">${dep.departure ? formatTimeShort(dep.departure.minutes) : '--:--'}</div>
+                        <div class="time-until ${timeClass}">${dep.departure ? formatTimeUntil(dep.departure.until) : 'No service'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update westbound board
+            const westDepartures = getNextDepartures(schedule.westbound, 'westbound');
+            const westBoard = document.getElementById('westboundBoard');
+            westBoard.innerHTML = westDepartures.map((dep, idx) => {
+                const timeClass = dep.departure
+                    ? (dep.departure.until <= 2 ? 'arriving' : (dep.departure.until <= 10 ? 'soon' : 'normal'))
+                    : 'normal';
+                const isNext = idx === 0 && dep.departure;
+
+                return `
+                    <div class="departure-row ${isNext ? 'next-train' : ''}">
+                        <div class="station-name">${dep.station.name}</div>
+                        <div class="departure-time">${dep.departure ? formatTimeShort(dep.departure.minutes) : '--:--'}</div>
+                        <div class="time-until ${timeClass}">${dep.departure ? formatTimeUntil(dep.departure.until) : 'No service'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update info cards with Grapevine departures
+            const grapevineEast = getNextGrapevineDeparture(schedule.eastbound, 'eastbound');
+            const grapevineWest = getNextGrapevineDeparture(schedule.westbound, 'westbound');
+
+            if (grapevineEast) {
+                document.getElementById('nextEastTime').textContent = formatTimeUntil(grapevineEast.until);
+                document.getElementById('nextEastStation').innerHTML = `from Grapevine • <span style="color: #1a3668; font-weight: 600;">${formatTimeShort(grapevineEast.minutes)}</span>`;
+            } else {
+                document.getElementById('nextEastTime').textContent = '--';
+                document.getElementById('nextEastStation').textContent = 'from Grapevine';
+            }
+
+            if (grapevineWest) {
+                document.getElementById('nextWestTime').textContent = formatTimeUntil(grapevineWest.until);
+                document.getElementById('nextWestStation').innerHTML = `from Grapevine • <span style="color: #c8102e; font-weight: 600;">${formatTimeShort(grapevineWest.minutes)}</span>`;
+            } else {
+                document.getElementById('nextWestTime').textContent = '--';
+                document.getElementById('nextWestStation').textContent = 'from Grapevine';
+            }
+        }
+
+        // Update train positions on map
+        function updateTrainPositions() {
+            const trains = getActiveTrains();
+            const trainsContainer = document.getElementById('trains');
+
+            trainsContainer.innerHTML = '';
+
+            trains.forEach(train => {
+                const trainGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                trainGroup.classList.add('train-marker');
+                trainGroup.setAttribute('transform', `translate(${train.x}, ${train.y})`);
+
+                const isEast = train.direction === 'eastbound';
+                const color = isEast ? '#1a3668' : '#c8102e';
+                const darkColor = isEast ? '#0052A3' : '#E09B00';
+                const trainClass = isEast ? 'train-eastbound' : 'train-westbound';
+
+                // FLIRT-style train body (main car)
+                const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                body.setAttribute('x', '-18');
+                body.setAttribute('y', '-6');
+                body.setAttribute('width', '36');
+                body.setAttribute('height', '12');
+                body.setAttribute('rx', '2');
+                body.setAttribute('fill', color);
+                body.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
+                body.setAttribute('stroke-width', '1.5');
+                body.classList.add(trainClass);
+
+                // FLIRT-style streamlined nose (rounded aerodynamic front)
+                const nose = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                if (isEast) {
+                    // Eastbound: smooth rounded nose on right
+                    nose.setAttribute('d', 'M 18,-6 Q 25,-6 26,0 Q 25,6 18,6 Z');
+                } else {
+                    // Westbound: smooth rounded nose on left
+                    nose.setAttribute('d', 'M -18,-6 Q -25,-6 -26,0 Q -25,6 -18,6 Z');
+                }
+                nose.setAttribute('fill', color);
+                nose.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
+                nose.setAttribute('stroke-width', '1.5');
+                nose.classList.add(trainClass);
+
+                // Large cab windshield (FLIRT characteristic)
+                const windshield = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                if (isEast) {
+                    windshield.setAttribute('d', 'M 12,-5 L 18,-5 L 18,5 L 12,5 Q 13,0 12,-5 Z');
+                } else {
+                    windshield.setAttribute('d', 'M -12,-5 L -18,-5 L -18,5 L -12,5 Q -13,0 -12,-5 Z');
+                }
+                windshield.setAttribute('fill', darkColor);
+                windshield.setAttribute('opacity', '0.7');
+
+                // Passenger windows - more FLIRT-like rectangular windows
+                const window1 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                window1.setAttribute('x', '-10');
+                window1.setAttribute('y', '-4');
+                window1.setAttribute('width', '6');
+                window1.setAttribute('height', '4');
+                window1.setAttribute('rx', '0.5');
+                window1.setAttribute('fill', darkColor);
+                window1.setAttribute('opacity', '0.8');
+
+                const window2 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                window2.setAttribute('x', '-2');
+                window2.setAttribute('y', '-4');
+                window2.setAttribute('width', '6');
+                window2.setAttribute('height', '4');
+                window2.setAttribute('rx', '0.5');
+                window2.setAttribute('fill', darkColor);
+                window2.setAttribute('opacity', '0.8');
+
+                const window3 = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                window3.setAttribute('x', '6');
+                window3.setAttribute('y', '-4');
+                window3.setAttribute('width', '5');
+                window3.setAttribute('height', '4');
+                window3.setAttribute('rx', '0.5');
+                window3.setAttribute('fill', darkColor);
+                window3.setAttribute('opacity', '0.8');
+
+                // Wheels - FLIRT bogie configuration (2 wheels per bogie)
+                // Front bogie - left wheel
+                const wheel1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                wheel1.setAttribute('cx', '-14');
+                wheel1.setAttribute('cy', '6');
+                wheel1.setAttribute('r', '2');
+                wheel1.setAttribute('fill', '#374151');
+                wheel1.setAttribute('stroke', '#1f2937');
+                wheel1.setAttribute('stroke-width', '1');
+
+                // Front bogie - right wheel
+                const wheel2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                wheel2.setAttribute('cx', '-10');
+                wheel2.setAttribute('cy', '6');
+                wheel2.setAttribute('r', '2');
+                wheel2.setAttribute('fill', '#374151');
+                wheel2.setAttribute('stroke', '#1f2937');
+                wheel2.setAttribute('stroke-width', '1');
+
+                // Rear bogie - left wheel
+                const wheel3 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                wheel3.setAttribute('cx', '10');
+                wheel3.setAttribute('cy', '6');
+                wheel3.setAttribute('r', '2');
+                wheel3.setAttribute('fill', '#374151');
+                wheel3.setAttribute('stroke', '#1f2937');
+                wheel3.setAttribute('stroke-width', '1');
+
+                // Rear bogie - right wheel
+                const wheel4 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                wheel4.setAttribute('cx', '14');
+                wheel4.setAttribute('cy', '6');
+                wheel4.setAttribute('r', '2');
+                wheel4.setAttribute('fill', '#374151');
+                wheel4.setAttribute('stroke', '#1f2937');
+                wheel4.setAttribute('stroke-width', '1');
+
+                // Yellow/Blue stripe (FLIRT livery detail)
+                const stripe = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                stripe.setAttribute('x', '-18');
+                stripe.setAttribute('y', '2');
+                stripe.setAttribute('width', '36');
+                stripe.setAttribute('height', '1.5');
+                stripe.setAttribute('fill', 'rgba(255, 255, 255, 0.2)');
+
+                trainGroup.appendChild(body);
+                trainGroup.appendChild(nose);
+                trainGroup.appendChild(stripe);
+                trainGroup.appendChild(windshield);
+                trainGroup.appendChild(window1);
+                trainGroup.appendChild(window2);
+                trainGroup.appendChild(window3);
+                trainGroup.appendChild(wheel1);
+                trainGroup.appendChild(wheel2);
+                trainGroup.appendChild(wheel3);
+                trainGroup.appendChild(wheel4);
+                trainsContainer.appendChild(trainGroup);
+            });
+        }
+
+        // Update clock display
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            const dateStr = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('currentTime').textContent = timeStr;
+            document.getElementById('currentDate').textContent = dateStr;
+            document.getElementById('scheduleType').textContent = 'Daily Schedule';
+        }
+
+        // Station popup handling
+        function initStationPopups() {
+            const stationDots = document.querySelectorAll('.station-dot');
+            const popup = document.getElementById('stationPopup');
+            const mapContainer = document.querySelector('.map-container');
+
+            stationDots.forEach(dot => {
+                dot.addEventListener('mouseenter', (e) => {
+                    const stationIdx = parseInt(dot.dataset.station);
+                    const station = stations[stationIdx];
+                    const schedule = getSchedule();
+
+                    let nextEast = null;
+                    for (const trip of schedule.eastbound) {
+                        const tripMinutes = parseTime(trip[stationIdx]);
+                        const diff = getMinutesUntil(tripMinutes, getCurrentMinutes());
+                        if (diff >= 0 && (!nextEast || diff < nextEast.diff)) {
+                            nextEast = { time: formatTime(tripMinutes), diff };
+                        }
+                    }
+
+                    const westIdx = 9 - stationIdx;
+                    let nextWest = null;
+                    for (const trip of schedule.westbound) {
+                        const tripMinutes = parseTime(trip[westIdx]);
+                        const diff = getMinutesUntil(tripMinutes, getCurrentMinutes());
+                        if (diff >= 0 && (!nextWest || diff < nextWest.diff)) {
+                            nextWest = { time: formatTime(tripMinutes), diff };
+                        }
+                    }
+
+                    document.getElementById('popupStationName').textContent = station.name;
+                    document.getElementById('popupNextEast').textContent = `Next Eastbound: ${nextEast ? nextEast.time : 'No service'}`;
+                    document.getElementById('popupNextWest').textContent = `Next Westbound: ${nextWest ? nextWest.time : 'No service'}`;
+
+                    const rect = mapContainer.getBoundingClientRect();
+                    const svgRect = document.querySelector('.map-svg').getBoundingClientRect();
+                    const scale = svgRect.width / 1200;
+
+                    const x = station.x * scale;
+                    const y = station.y * scale;
+
+                    popup.style.left = `${Math.min(x + 20, rect.width - 200)}px`;
+                    popup.style.top = `${Math.max(y - 50, 10)}px`;
+                    popup.classList.add('active');
+                });
+
+                dot.addEventListener('mouseleave', () => {
+                    popup.classList.remove('active');
+                });
+            });
+        }
+
+        // Initialize
+        function init() {
+            try {
+                updateClock();
+                updateDepartureBoards();
+                updateTrainPositions();
+                initStationPopups();
+
+                // Update clock every second
+                setInterval(updateClock, 1000);
+
+                // Update train positions every second for smooth movement
+                setInterval(updateTrainPositions, 1000);
+
+                // Update departure boards every 5 seconds to keep countdown times accurate
+                setInterval(updateDepartureBoards, 5000);
+            } catch (e) {
+                // Show error on screen for debugging on iPad
+                document.body.innerHTML = '<div style="color:red;padding:20px;font-size:18px;">Error: ' + e.message + '<br><br>Stack: ' + e.stack + '</div>';
+            }
+        }
+
+        // Initialize - with fallback for iOS Safari local file handling
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            // DOM already loaded (common on iOS Safari with local files)
+            init();
+        }
+    </script>
+</body>
+</html>
