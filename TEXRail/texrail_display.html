@@ -918,7 +918,7 @@
             // Check eastbound trains
             schedule.eastbound.forEach((trip, tripIndex) => {
                 const startMinutes = parseTime(trip[0]);
-                const endMinutes = parseTime(trip[9]);
+                const endMinutes = parseTime(trip[8]);
 
                 let adjustedEnd = endMinutes;
                 if (endMinutes < startMinutes) adjustedEnd += 24 * 60;
@@ -941,7 +941,7 @@
             // Check westbound trains
             schedule.westbound.forEach((trip, tripIndex) => {
                 const startMinutes = parseTime(trip[0]);
-                const endMinutes = parseTime(trip[9]);
+                const endMinutes = parseTime(trip[8]);
 
                 let adjustedEnd = endMinutes;
                 if (endMinutes < startMinutes) adjustedEnd += 24 * 60;
