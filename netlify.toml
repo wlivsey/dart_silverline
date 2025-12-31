@@ -1,12 +1,24 @@
 [build]
-  # No build command needed - this is a static HTML site
+  # No build command needed - this is a static HTML site with serverless functions
   command = ""
   publish = "."
+  functions = "netlify/functions"
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF ."
 
 # Override any UI settings
 [build.environment]
   NODE_VERSION = "18"
+
+# API redirects - map /v1/* to Netlify Functions
+[[redirects]]
+  from = "/v1/next"
+  to = "/.netlify/functions/next"
+  status = 200
+
+[[redirects]]
+  from = "/v1/voice/next"
+  to = "/.netlify/functions/voice-next"
+  status = 200
 
 [[headers]]
   # Cache static assets
@@ -19,3 +31,9 @@
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  # API endpoints - short cache for freshness
+  for = "/v1/*"
+  [headers.values]
+    Cache-Control = "public, max-age=10"
