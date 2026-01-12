@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DART Silver Line - Live Display</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADD0lEQVR4AWLABf6fYpAAFF8NUHIEQbTzZs+293zr2LadzExs27ZtPMS2bVvni23b6dTg5swK6r3/dqpnuuoXGksjmJc0nPmeLUSoTlFKchCM0HBVHzBEsw+mJY7ABWIGhmIQBJ6ADQeCETBUHkARmEawAjXdgCDwjUYTPcEIGFCDoY8IEgcIVsDIEFQpwpn6OAKHiSU01Q0EgTvQkNbYXqiBbMiRf6IUOxEEPtFwEohtyBAw9AWxN2zGZyFSNRZTCphfEdkLxAYiuYcgESvssjgSVxgOmYU+f6IhDyIIvIUseCGzQAzCVovYG5bhCFwi3mDoPaIU+4ibG2ubGIRkfIkICGhhKXz76qTN6vdnrej3S+aK0W8XLVPFz3Cz5M6/0giiJV5aniaGp5Z/66XlxhLCMkQWTx3X30PLmhRdy+1IPMfPwNGeHQvT58dtBD1V7Fnol5zARCKI4ljD/xSQoDcYKjlrEAD6Ry8Nf0zOjkLAV89RP4C3TpozcVBu0OUxyY6i71uUmABzHzY0W4UAGH9OZPEI5crD2C/AA0GHd5sVUjq+mTy2U9DPr/OiPy6b09UzQsX3rZuXUJyUKl9FHHtz2iqVFcBwBCRVAkTPmoP+Gcrw0TOMryJn5wZE/R2en6yZ72esV6/ce2G8WaPSSdI8fmDujAkkvxvIkz94aLmBXiL4PZJT7hD0w3UpG1xbIBEujPfqVOht44aS43PrPGnt2uXF5+Dc9enrU9YZEfhGI4kuNQLJ0OA+ZGGZnJ0VQOZs/DsfqGfBEjXF54sbPOj9g/ZUk7euqM8YYUqfQKRqEkkuEFnfxIBUN3cKYh0g+i6C7qVl8wm/wbnrDZ41yvhtzmgDjceTI3ai4eMrven04SY6e5SRfr0oLclV0BfCN18kHcA8EBoPs+0OQF7JGmAvpR+y71x1CHn+/8drOY1SVcKlXjUl+86vEwswcA1R94c0jth5a1iNVyhX0tfAOmf1z+lgZOM1JCAeWr4rLOV1XmENSmSl8TzFu3wE8zR7UO1Qtvcwlofl3Uc50BLJb+qCDGd2/YbrAAAAAElFTkSuQmCC">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="theme-color" content="#6b7280">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Silver Line">
     <style>
         * {
             margin: 0;
@@ -1346,6 +1352,14 @@
         } else {
             // DOM already loaded (common on iOS Safari with local files)
             init();
+        }
+    </script>
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
         }
     </script>
 </body>
