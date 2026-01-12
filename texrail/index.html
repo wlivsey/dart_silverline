@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trinity Metro TEXRail - Live Display</title>
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAMAAABF0y+mAAAAM1BMVEVHcEwYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFcYKFe5GPdFAAAAEXRSTlMAu/9lC96HKKpTznVCl/PpFD20e3UAAAC2SURBVHgBdVIFDgMxDEuZ4f+fHblZFymz0PJdWwN9YeyBARdwLDpF9Cx6UhCgBdIQIUZVTBATqYBIOvJby6SjvMVCf8CnqqjWVlLwcd6sbSAC3cEMjLguxIG050QHQ4jLwgyM2PWr7XNeKef0LepCpN4jZFGbEWUEWbio0css+h0AT+KaGXc6PKZrZoquPmTKlvmkLjtvoANsgDUuA3SBLbAq5nFi2czuAO5JjVnh6QD13oExPQFQ6gRfMgm2NQAAAABJRU5ErkJggg==">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="theme-color" content="#182757">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * {
             margin: 0;
@@ -1307,6 +1312,14 @@
         } else {
             // DOM already loaded (common on iOS Safari with local files)
             init();
+        }
+    </script>
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed:', err));
         }
     </script>
 </body>
