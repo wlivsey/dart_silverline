@@ -1,13 +1,13 @@
-GTFS Version: V661-205-207-20251027
-Data Range: 20251027 - 20260201
-URL: https://www.dart.org/transitdata/archive/V661-205-207-20251027.ZIP
+GTFS Version: V668-205-207-20260107
+Data Range: 20260107 - 20260201
+URL: https://www.dart.org/transitdata/archive/V668-205-207-20260107.ZIP
 
-Event: Updated signup: Effective OCT 27th(SEPT2025_BUS OCT2025_RAIL)
+Event: Updated signup: Effective JAN 06th(SEPT2025_BUS OCT2025_RAIL)
 
 BUS Signup: 205 - SEPT2025_BUS
 RAIL Signup: 207 - OCT2025_RAIL
 
-Info file created: 2025-10-28T16:32:37
+Info file created: 2026-01-06T16:43:25
 
 
 New versions are published for upcoming special and weather events.
