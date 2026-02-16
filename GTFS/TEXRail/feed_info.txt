@@ -1,2 +1,2 @@
 feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version
-Trinity Metro,https://ridetrinitymetro.org,en,20250928,20260131,SEPTEMBER 2025_20251206
+Trinity Metro,https://ridetrinitymetro.org,en,20260201,20260523,FEBRUARY 2026_20260130

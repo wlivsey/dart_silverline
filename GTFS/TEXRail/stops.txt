@@ -10,7 +10,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 11,,TEXRail Mercantile Center Station,,32.819463,-97.293636,,,1,,,0
 12,,TEXRail North side Station,,32.795827,-97.337619,,,1,,,0
 14,,Trinity Lakes Station,,32.805258,-97.209435,,,1,,,0
-15,,DFW Airport(DFW) TEXRail Station,,32.906242,-97.041297,,,1,,,0
+15,,DFW Airport (DFW) TEXRail Station,,32.906242,-97.041297,,,1,,,0
 16,0016,Henderson & Peach,Southbound - Far Side,32.75652,-97.340666,,,,,,0
 18,0018,Vickery Transfer Center (Curb Side),,32.743775,-97.327273,,,,,,0
 28,0028,Fort Worth T&P Station,,32.745327,-97.328451,,,,,,0
@@ -145,6 +145,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 599,0599,Camp Bowie & Watonga - Montgomery,Eastbound - Mid Block,32.746898,-97.371653,,,,,,0
 600,0600,Lancaster & Cedar,Eastbound - Far Side,32.746073,-97.314488,,,,,,0
 601,0601,Lancaster & Pine,Eastbound - Far Side,32.746033,-97.311217,,,,,,0
+605,0605,Camp Bowie & University,Eastbound - Near Side,32.7505,-97.362958,,,,,,0
 606,0606,Lancaster & Whitson - Hudson,Eastbound - Mid Block,32.745224,-97.293931,,,,,,0
 607,0607,Lancaster & Anna,Eastbound - Near Side,32.744424,-97.291126,,,,,,0
 608,0608,Lancaster & Sanborn,Eastbound - Far Side,32.74075,-97.284024,,,,,,0
@@ -583,7 +584,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 1335,1335,Ramey & Lucas,Eastbound - Near Side,32.720412,-97.228477,,,,,,0
 1355,1355,Rosedale & Bishop,Westbound - Near Side,32.730755,-97.27728,,,,,,0
 1356,1356,Rosedale & Vaughn,Westbound - Near Side,32.730813,-97.279089,,,,,,0
-1359,1359,Bryant Irvin & Southwest  - SW Loop 820,Southbound - Mid Block,32.687067,-97.413706,,,,,,0
+1359,1359,Bryant Irvin & Southwest - SW Loop 820,Southbound - Mid Block,32.687067,-97.413706,,,,,,0
 1360,1360,Bryant Irvin & Overton Ridge,Southbound - Far Side,32.676858,-97.416998,,,,,,0
 1363,1363,Oakmont & Harris,Eastbound - Far Side,32.662764,-97.417375,,,,,,0
 1364,1364,Oakmont & Arbor,Eastbound - Near Side,32.662793,-97.410707,,,,,,0
@@ -669,10 +670,11 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 1521,1521,Sondra & Blanch,Eastbound - Near Side,32.757209,-97.36373,,,,,,0
 1522,1522,Bailey & Sondra,Northbound - Far Side,32.756765,-97.365937,,,,,,0
 1523,1523,Sondra & Bailey,Eastbound - Far Side,32.756517,-97.365164,,,,,,0
+1526,1526,Montgomery & El Campo,Southbound - Near Side,32.736454,-97.370093,,,,,,0
+1531,1531,Montgomery & Bryce,Northbound - Far Side,32.74,-97.36997,,,,,,0
 1538,1538,10th & Burnett,Westbound - Near Side,32.750005,-97.333799,,,,,,0
 1543,1543,Throckmorton & 11th - Jennings,Northbound - Mid Block,32.7498,-97.32997,,,,,,0
 1547,1547,Commerce & 5th,Northbound - Near Side,32.754058,-97.329679,,,,,,0
-1549,1549,Jones & 4th,Northbound - Near Side,32.755573,-97.328748,,,,,,0
 1553,1553,Weatherford & Taylor - Throck,Eastbound - Mid Block,32.756087,-97.334918,,,,,,0
 1556,1556,8th & Elizabeth - Robert,Southbound - Mid Block,32.715979,-97.343897,,,,,,0
 1557,1557,McCart & Butler,Southbound - Far Side,32.695239,-97.353081,,,,,,0
@@ -998,7 +1000,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 3282,3282,Green Oaks & Alta Mere,Southbound - Far Side,32.74832,-97.433355,,,,,,0
 3285,3285,Riverside & Timberline,Southbound - Near Side,32.695752,-97.304067,,,,,,0
 3287,3287,Ephriham & 22nd,Northbound - Near Side,32.789968,-97.377432,,,,,,0
-3294,3294,Handley Ederville. & Jack Newell,Northbound - Near Side,32.784605,-97.221213,,,,,,0
+3294,3294,Handley Ederville & Jack Newell,Northbound - Near Side,32.784605,-97.221213,,,,,,0
 3296,3296,Oakland & Benmar,Southbound - Far Side,32.755442,-97.261759,,,,,,0
 3300,3300,Shady Oak & Watermark,Westbound - Near Side,32.805353,-97.418739,,,,,,0
 3303,3303,Lancaster & Wilson,Westbound - Near Side,32.740706,-97.241529,,,,,,0
@@ -1036,6 +1038,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 3415,3415,University & Old University,Northbound - Far Side,32.728979,-97.361146,,,,,,0
 3416,3416,University & Park Hill,Northbound - Far Side,32.717084,-97.360274,,,,,,0
 3417,3417,Mansfield HWY & Alcannon,Westbound - Far Side,32.687609,-97.289376,,,,,,0
+3418,3418,Montgomery & Lansford,Northbound - Far Side,32.745713,-97.369922,,,,,,0
 3422,3422,Glen Garden & Lowden,Eastbound - Near Side,32.710385,-97.310609,,,,,,0
 3423,3423,Glen Garden & Yuma,Eastbound - Near Side,32.710416,-97.307108,,,,,,0
 3424,3424,Glen Garden & Lowden,Westbound - Near Side,32.710511,-97.310281,,,,,,0
@@ -1372,7 +1375,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 4152,4152,Mercantile Center Station Bay - 1,,32.820306,-97.293768,,,,11,,0
 4153,4153,Iron Horse Station,,32.84483,-97.249426,,,,,,0
 4154,4154,Smithfield Station,,32.865039,-97.211384,,,,,,0
-4155,4155,Grapevine Main Street  Station,,32.933686,-97.077306,,,,,,0
+4155,4155,Grapevine Main Street Station,,32.933686,-97.077306,,,,,,0
 4156,4156,DFW Airport North Station,,32.933399,-97.054133,,,,,,0
 4158,4158,DFW Airport Terminal B Station,,32.906253,-97.041287,,,,15,,0
 4159,4159,Mercantile Center Station Bay - 2,,32.820054,-97.293678,,,,11,,0
@@ -1409,7 +1412,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 4216,4216,N Tarrant & Cumberland Gap,Eastbound - Mid Block,32.895765,-97.304472,,,,,,0
 4217,4217,N Riverside & Shiver,Northbound - Near Side,32.902868,-97.3069,,,,,,0
 4218,4218,N Riverside & Shiver,Southbound - Far Side,32.902641,-97.307086,,,,,,0
-4219,4219,NW Center &  Quebec,Northbound - Far Side,32.806324,-97.429625,,,,,,0
+4219,4219,NW Center & Quebec,Northbound - Far Side,32.806324,-97.429625,,,,,,0
 4226,4226,7th & Stayton,Eastbound - Far Side,32.750925,-97.350212,,,,,,0
 4227,4227,Ephriham & Jacksboro,Eastbound - Far Side,32.785944,-97.382867,,,,,,0
 4231,4231,American & Post Oak,Northbound - Far Side,32.826137,-97.070512,,,,,,0
@@ -1444,7 +1447,7 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 4297,4297,Westcreek & Altamesa,Northbound - Near Side,32.648018,-97.360774,,,,,,0
 4298,4298,McCart & Clovermeadow,Southbound - Far Side,32.631869,-97.370006,,,,,,0
 4299,4299,Columbus & McCart,Westbound - Far Side,32.628019,-97.371136,,,,,,0
-4300,4300,Columbus &  Tree Leaf,Westbound - Near Side,32.628079,-97.380455,,,,,,0
+4300,4300,Columbus & Tree Leaf,Westbound - Near Side,32.628079,-97.380455,,,,,,0
 4301,4301,Cleburne & Yellow Leaf,Northbound - Near Side,32.630272,-97.382851,,,,,,0
 4302,4302,Cleburne & Sycamore School,Northbound - Near Side,32.634115,-97.380194,,,,,,0
 4303,4303,Belknap & Grace,Eastbound - Near Side,32.76996,-97.308077,,,,,,0
@@ -1538,16 +1541,12 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 4413,4413,William D Tate & Huges,Southbound - Far Side,32.886333,-97.098551,,,,,,0
 4414,4414,William D Tate & Hall Johnson,Northbound - Near Side,32.891872,-97.098419,,,,,,0
 4415,4415,William D Tate & Stone Myers,Northbound - Far Side,32.904201,-97.096733,,,,,,0
-4416,4416,Hwy 114 & Main,Eastbound - Near Side,32.92174,-97.082157,,,,,,0
+4416,4416,HWY 114 & Main,Eastbound - Near Side,32.92174,-97.082157,,,,,,0
 4418,4418,Rosedale & 8th,Eastbound - Near Side,32.733004,-97.344935,,,,,,0
 4419,4419,Hemphill & Morphy,Southbound - Far Side,32.72921,-97.33163,,,,,,0
 4420,4420,West Fwy & Loredo,Eastbound - Near Side,32.737712,-97.464481,,,,,,0
-4422,4422,Mistletoe & 9th,Westbound - Near Side,32.731434,-97.34657,,,,,,0
 4423,4423,W Rosedale & 8th,Westbound - Far Side,32.733292,-97.344972,,,,,,0
 4424,4424,Rosedale & Edgewood,Eastbound - Far Side,32.731087,-97.253381,,,,,,0
-4425,4425,Grapevine Public Library,,32.929267,-97.076726,,,,,,0
-4426,4426,Grapevine Christmas Market,,32.937815,-97.075982,,,,,,0
-4427,4427,Grapevine Palace Theater,,32.939156,-97.079067,,,,,,0
 4428,4428,Trinity Lakes Station Bay D,,32.805329,-97.20893,,,,14,,0
 4432,4432,Trinity & Handley Ederville,Eastbound - Far Side,32.797898,-97.219595,,,,,,0
 4433,4433,Trinity & Handley Ederville,Westbound - Near Side,32.798086,-97.219515,,,,,,0
@@ -1565,12 +1564,23 @@ stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,locatio
 4452,4452,28th & Cliff,Westbound - Far Side,32.795059,-97.357411,,,,,,0
 4454,4454,Riverside & Heritage Trace,Southbound - Near Side,32.915397,-97.307024,,,,,,0
 4456,4456,NW 28th & Columbus,Eastbound - Near Side,32.795166,-97.365388,,,,,,0
-4457,4457,NW 28th & Columbus,Westbound - Far Side,32.795373,-97.365377,,,,,,
-4458,4458,NW 28th & Pearl,Eastbound - Far Side,32.794622,-97.362251,,,,,,
-4460,4460,NW 28th & Lincoln,Eastbound - Near Side,32.794363,-97.359276,,,,,,
-4462,4462,Lancaster & Throckmorton,Eastbound - Far Side,32.746529,-97.327765,,,,,,
-4463,4463,Commerce & 7th,Northbound - Near Side,32.752998,-97.328965,,,,,,
-4464,4464,Main & 7th,Northbound - Near Side,32.76828,-97.340265,,,,,,
-4466,4466,Cambridge & Trinity,Southbound - Near Side,32.822729,-97.044275,,,,,,
-4468,4468,Terminal D Upper Level,,32.897118,-97.044176,,,,,,
-4469,4469,Main & 5th,Northbound - Near Side,32.764868,-97.338006,,,,,,
+4457,4457,NW 28th & Columbus,Westbound - Far Side,32.795373,-97.365377,,,,,,0
+4458,4458,NW 28th & Pearl,Eastbound - Far Side,32.794622,-97.362251,,,,,,0
+4460,4460,NW 28th & Lincoln,Eastbound - Near Side,32.794363,-97.359276,,,,,,0
+4462,4462,Lancaster & Throckmorton,Eastbound - Far Side,32.746529,-97.327765,,,,,,0
+4463,4463,Commerce & 7th,Northbound - Near Side,32.752998,-97.328965,,,,,,0
+4464,4464,Main & 7th,,32.76828,-97.340265,,,,,,0
+4466,4466,Cambridge & Trinity,Southbound - Near Side,32.822729,-97.044275,,,,,,0
+4468,4468,Terminal D Upper Level,,32.897118,-97.044176,,,,,,0
+4469,4469,Main & 5th,Northbound - Near Side,32.764868,-97.338006,,,,,,0
+4470,4470,Lancaster & University,,32.747463,-97.362327,,,,,,0
+4471,4471,Rosedale & 12th,Westbound - Far Side,32.733817,-97.348312,,,,,,0
+4472,4472,Rosedale & Northton,Westbound - Near Side,32.734197,-97.351002,,,,,,0
+4473,4473,Montgomery & Pershing,,32.735028,-97.369842,,,,,,0
+4474,4474,Montgomery & Trail,,32.736771,-97.369804,,,,,,0
+4476,4476,Montgomery & Harley,,32.741412,-97.369915,,,,,,0
+4478,4478,Montgomery & Crestline,Southbound - Near Side,32.744364,-97.370103,,,,,,0
+4479,4479,Montgomery & Lafayette,Southbound - Near Side,32.74171,-97.370117,,,,,,0
+4481,4481,Montgomery & Birchman,Southbound - Far Side,32.734132,-97.370082,,,,,,0
+4483,4483,Rosedale & 12th,Eastbound - Far Side,32.733228,-97.346979,,,,,,0
+4484,4484,Jones & 3rd,Northbound - Far Side,32.756482,-97.329401,,,,,,0

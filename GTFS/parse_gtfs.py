@@ -15,7 +15,7 @@ DART_GTFS_DIR = Path(__file__).parent / "DART"
 TEXRAIL_GTFS_DIR = Path(__file__).parent / "TEXRail"
 
 # DART Silver Line
-SILVER_LINE_ROUTE_ID = "26810"
+SILVER_LINE_ROUTE_ID = "26986"
 SILVER_LINE_STOPS = [
     "33473",  # DFW Terminal B
     "33474",  # DFW North Station
@@ -30,7 +30,7 @@ SILVER_LINE_STOPS = [
 ]
 
 # TEXRail
-TEXRAIL_ROUTE_ID = "7689"
+TEXRAIL_ROUTE_ID = "7737"
 TEXRAIL_STOPS = [
     "28",    # Fort Worth T&P Station
     "78",    # Fort Worth Central Station
@@ -216,9 +216,18 @@ def process_dart_silver_line():
             if is_weekend:
                 results['weekend_westbound'].extend(trips)
 
-    # Sort all results by first departure time
+    # Sort all results by first departure time and deduplicate
     for key in results:
         results[key].sort(key=lambda x: x['first_time'])
+        # Deduplicate trips with identical times (e.g., Saturday and Sunday same schedule)
+        seen = set()
+        deduped = []
+        for trip in results[key]:
+            times_key = tuple(trip['times'])
+            if times_key not in seen:
+                seen.add(times_key)
+                deduped.append(trip)
+        results[key] = deduped
 
     return results
 
