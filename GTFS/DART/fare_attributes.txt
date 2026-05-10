@@ -1,0 +1,27 @@
+fare_id,price,currency_type,payment_method,transfers,transfer_duration,agency_id
+Adult Local 3 Hour Pass,3.00,USD,1,,10800,60056
+Adult Local Day Pass,6.00,USD,1,,86400,60056
+Adult Local 31 day Pass,126.00,USD,1,,2678400,60056
+Adult Local Streetcar One-way,1.00,USD,1,0,,60056
+Adult Regional Day Pass-New Fare,9.00,USD,1,,86400,60056
+Adult Regional 31 day Pass,192.00,USD,1,,2678400,60056
+Adult Regional TRE one-way,6.00,USD,1,0,,60056
+Child Local 3 Hour Pass,2.00,USD,1,,10800,60056
+Child Local Day Pass Reduced,3.00,USD,1,,86400,60056
+Child Local 31 day Pass Reduced,63.00,USD,1,,2678400,60056
+Child Regional Day Pass Reduced-New Fare,5.00,USD,1,,86400,60056
+Senior Local 3 Hour Pass,2.00,USD,1,,10800,60056
+Senior Local Day Pass Reduced,3.00,USD,1,,86400,60056
+Senior Local 31 day Pass Reduced,63.00,USD,1,,2678400,60056
+Senior Regional Day Pass Reduced-New Fare,5.00,USD,1,,86400,60056
+Disabled Local 3 Hour Pass,2.00,USD,1,,10800,60056
+Disabled Local Day Pass Reduced,3.00,USD,1,,86400,60056
+Disabled Local 31 day Pass Reduced,63.00,USD,1,,2678400,60056
+Disabled Regional Day Pass Reduced-New Fare,5.00,USD,1,,86400,60056
+Veteran Local 3 Hour Pass,2.00,USD,1,,10800,60056
+Veteran Local Day Pass,3.00,USD,1,,86400,60056
+Veteran Local 31 day Pass Reduced,63.00,USD,1,,2678400,60056
+Veteran Regional Day Pass Reduced,3.00,USD,1,,86400,60056
+Veteran Regional Day Pass Reduced-New Fare,5.00,USD,1,,86400,60056
+Veteran Regional 31 day Pass,96.00,USD,1,,2678400,60056
+DART to AAC Special Event Day Pass,6.00,USD,1,,86400,60056
